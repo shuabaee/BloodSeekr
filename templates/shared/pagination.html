@@ -1,0 +1,5 @@
+{% load ui %}{% if page_obj.has_other_pages %}<nav class="pager" aria-label="Pagination">
+{% if page_obj.has_previous %}<a class="btn secondary small" href="{% querystring page=page_obj.previous_page_number %}">{% icon 'arrow-left' 14 %} Previous</a>{% else %}<span></span>{% endif %}
+<span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+{% if page_obj.has_next %}<a class="btn secondary small" href="{% querystring page=page_obj.next_page_number %}">Next {% icon 'arrow-right' 14 %}</a>{% else %}<span></span>{% endif %}
+</nav>{% endif %}

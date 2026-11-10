@@ -1,0 +1,2 @@
+{% load ui %}{% if messages %}<div class="messages" aria-live="polite">{% for message in messages %}
+<div class="feedback {{ message.tags }}" role="{% if message.level >= 40 %}alert{% else %}status{% endif %}" data-dismissible>{% icon message.tags|message_icon 18 %}<span class="feedback-text">{{ message }}</span><button type="button" class="feedback-close" aria-label="Dismiss">{% icon 'x' 16 %}</button></div>{% endfor %}</div>{% endif %}

@@ -1,0 +1,1 @@
+{% load ui %}<div class="empty{% if compact %} compact{% endif %}"><span class="empty-icon">{% icon icon|default:'droplet' 24 %}</span><h3>{{ title }}</h3>{% if text %}<p>{{ text }}</p>{% endif %}{% if action_url %}<a class="btn small" href="{{ action_url }}">{{ action_label }}</a>{% endif %}</div>

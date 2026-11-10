@@ -1,0 +1,14 @@
+{% load static %}
+<div class="location-picker" data-catalog="{{ widget.catalog_url }}" data-google-key="{{ widget.maps_key }}" data-map-id="{{ widget.map_id }}">
+<div class="location-controls">
+{% for subwidget in widget.subwidgets %}
+<div class="location-part location-part-{{ forloop.counter0 }}" data-part="{{ forloop.counter0 }}">
+{% if forloop.counter0 == 0 %}<label for="{{ subwidget.attrs.id }}">Country</label>{% elif forloop.counter0 == 1 %}<label for="{{ subwidget.attrs.id }}">Province / state / area</label>{% elif forloop.counter0 == 2 %}<label for="{{ subwidget.attrs.id }}">City / municipality</label>{% elif forloop.counter0 == 3 %}<label for="{{ subwidget.attrs.id }}">Street / collection point</label>{% elif forloop.counter0 == 4 %}<label for="{{ subwidget.attrs.id }}">Latitude</label>{% elif forloop.counter0 == 5 %}<label for="{{ subwidget.attrs.id }}">Longitude</label>{% elif forloop.counter0 == 7 %}<label for="{{ subwidget.attrs.id }}">Unlisted city name</label>{% endif %}
+{{ subwidget.rendered }}
+</div>{% endfor %}
+</div>
+<div class="pin-heading"><span><strong>Confirm your map point</strong><small>City selection starts at an approximate center. Move the pin to your preferred point.</small></span><button class="btn secondary small use-location" type="button">Use my location</button></div>
+<div class="picker-map" aria-label="Choose location on map" role="region"></div>
+<div class="location-feedback" role="status" aria-live="polite">Choose a city to position the pin.</div>
+<noscript><p>Choose your country, province and city, then enter coordinates if needed. JavaScript enables map selection.</p></noscript>
+</div>

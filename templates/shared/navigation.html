@@ -1,0 +1,33 @@
+{% load static ui %}{% with app=request.resolver_match.app_name %}
+<header class="topbar">
+  <a class="topbar-brand" href="{% url 'home:home' %}"><img src="{% static 'images/shared/bloodseekr-mark.png' %}" alt=""><span>Blood<span>Seekr</span></span></a>
+  <div class="topbar-actions">
+    <a class="icon-btn" href="{% url 'notifications:list' %}" aria-label="Notifications{% if unread_count %}, {{ unread_count }} unread{% endif %}">{% icon 'bell' 22 %}{% if unread_count %}<span class="nav-count">{{ unread_count }}</span>{% endif %}</a>
+    <button class="icon-btn" type="button" data-nav-toggle aria-controls="site-nav" aria-expanded="false" aria-label="Open menu">{% icon 'menu' 24 %}</button>
+  </div>
+</header>
+<div class="nav-overlay" data-nav-toggle></div>
+<nav id="site-nav" class="site-nav" aria-label="Main navigation">
+  <a class="site-brand" href="{% url 'home:home' %}">
+    <img src="{% static 'images/shared/bloodseekr-mark.png' %}" alt="">
+    <span><strong>Blood<span>Seekr</span></strong><span class="brand-caption">Donor network</span></span>
+  </a>
+  <a class="btn nav-cta" href="{% url 'blood_requests:create' %}">{% icon 'plus' 16 %} Request blood</a>
+  <div class="site-links">
+    <a href="{% url 'home:home' %}" {% if app == 'home' %}aria-current="page"{% endif %}>{% icon 'home' %} Dashboard</a>
+    <a href="{% url 'blood_requests:list' %}" {% if app == 'blood_requests' %}aria-current="page"{% endif %}>{% icon 'droplet' %} Blood requests</a>
+    <a href="{% url 'donations:list' %}" {% if app == 'donations' %}aria-current="page"{% endif %}>{% icon 'heart' %} Donations</a>
+    <a href="{% url 'facilities:list' %}" {% if app == 'facilities' %}aria-current="page"{% endif %}>{% icon 'building' %} Facilities</a>
+    <a href="{% url 'notifications:list' %}" {% if app == 'notifications' %}aria-current="page"{% endif %}>{% icon 'bell' %} Notifications{% if unread_count %}<span class="nav-count">{{ unread_count }}</span>{% endif %}</a>
+    <a href="{% url 'blood_data:guide' %}" {% if app == 'blood_data' %}aria-current="page"{% endif %}>{% icon 'info' %} Blood type guide</a>
+    <span class="nav-group-label">Account</span>
+    <a href="{% url 'profile:profile' %}" {% if app == 'profile' %}aria-current="page"{% endif %}>{% icon 'user' %} My profile</a>
+    <a href="{% url 'user_settings:settings' %}" {% if app == 'user_settings' %}aria-current="page"{% endif %}>{% icon 'sliders' %} Settings</a>
+  </div>
+  <div class="nav-account">
+    <span class="avatar">{{ request.user|initial }}</span>
+    <span><strong>{{ request.user.get_full_name|default:request.user.username }}</strong><small>@{{ request.user.username }}</small></span>
+    <form method="post" action="{% url 'login:logout' %}">{% csrf_token %}<button class="nav-logout" type="submit">{% icon 'logout' 16 %} Log out</button></form>
+  </div>
+</nav>
+{% endwith %}

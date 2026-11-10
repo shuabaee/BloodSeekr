@@ -1,0 +1,11 @@
+{% extends layout %}{% load ui %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<section class="card error-card">
+  <span class="empty-icon">{% icon icon 30 %}</span>
+  <span class="eyebrow">Error {{ status }}</span>
+  <h1>{{ title }}</h1>
+  <p class="muted">{{ message }}</p>
+  <div class="actions"><a class="btn" href="{% if user.is_authenticated %}{% url 'home:home' %}{% else %}{% url 'login:login' %}{% endif %}">{% if user.is_authenticated %}Back to dashboard{% else %}Go to sign in{% endif %}</a></div>
+</section>
+{% endblock %}

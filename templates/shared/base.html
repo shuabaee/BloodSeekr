@@ -1,0 +1,29 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#a51b2c">
+  <title>{% block title %}Donor coordination{% endblock %} · BloodSeekr</title>
+  <link rel="icon" type="image/png" href="{% static 'images/shared/favicon.png' %}">
+  <link rel="stylesheet" href="{% static 'css/shared/tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'css/shared/layout.css' %}">
+  <link rel="stylesheet" href="{% static 'css/shared/components.css' %}">
+  {% block assets %}{% endblock %}
+  {% include 'shared/map_assets.html' %}
+  <script src="{% static 'js/shared/ui.js' %}" defer></script>
+</head>
+<body>
+{{ maps_config|json_script:'maps-config' }}
+<a class="skip-link" href="#main">Skip to main content</a>
+{% include 'shared/navigation.html' %}
+<main id="main" class="workspace">
+  {% include 'shared/messages.html' %}
+  {% block content %}{% endblock %}
+</main>
+<footer class="site-footer">
+  <span>BloodSeekr · Connecting blood requests with volunteer donors</span>
+  <span>Always confirm donation eligibility and screening with the collecting facility.</span>
+</footer>
+</body>
+</html>

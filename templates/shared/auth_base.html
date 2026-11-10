@@ -1,0 +1,37 @@
+{% load static ui %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#a51b2c">
+  <title>{% block title %}Welcome{% endblock %} · BloodSeekr</title>
+  <link rel="icon" type="image/png" href="{% static 'images/shared/favicon.png' %}">
+  <link rel="stylesheet" href="{% static 'css/shared/tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'css/shared/layout.css' %}">
+  <link rel="stylesheet" href="{% static 'css/shared/components.css' %}">
+  <link rel="stylesheet" href="{% static 'css/shared/auth.css' %}">
+  {% block assets %}{% endblock %}
+  <script src="{% static 'js/shared/ui.js' %}" defer></script>
+</head>
+<body class="auth-page">
+<main class="auth-layout">
+  <section class="auth-visual" style="--visual: url('{% block visual_image %}{% endblock %}')">
+    <div class="auth-visual-content">
+      <a class="auth-brand" href="{% url 'login:login' %}"><img src="{% static 'images/shared/bloodseekr-mark.png' %}" alt=""><span>Blood<span>Seekr</span></span></a>
+      {% block visual %}{% endblock %}
+      <ul class="auth-points">
+        <li>{% icon 'droplet' 18 %} Post a request and reach compatible donors nearby</li>
+        <li>{% icon 'pin' 18 %} Find donation facilities on the map</li>
+        <li>{% icon 'shield' 18 %} Your medical documents stay private</li>
+      </ul>
+    </div>
+  </section>
+  <section class="auth-form-side">
+    <div class="auth-form-container {% block container_class %}{% endblock %}">
+      <a class="auth-mobile-brand" href="{% url 'login:login' %}"><img src="{% static 'images/shared/bloodseekr-mark.png' %}" alt=""><span>Blood<span>Seekr</span></span></a>
+      {% block content %}{% endblock %}
+    </div>
+  </section>
+</main>
+</body>
+</html>
