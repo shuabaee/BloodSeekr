@@ -1,0 +1,18 @@
+{% extends 'shared/base.html' %}{% load static ui %}
+{% block assets %}<link rel="stylesheet" href="{% static 'css/blood_requests/blood_requests.css' %}"><script src="{% static 'js/blood_requests/facility.js' %}" defer></script>{% endblock %}
+{% block title %}Edit collection point{% endblock %}
+{% block content %}
+<header class="page-heading"><div><a class="breadcrumb" href="{% url 'blood_requests:detail' item.pk %}">{% icon 'arrow-left' 14 %} Request #{{ item.pk }}</a><span class="eyebrow">Request #{{ item.pk }}</span><h1>Edit collection location</h1><p>Keep the collection point accurate. Donors who responded are notified when it changes.</p></div></header>
+<form method="post" novalidate>{% csrf_token %}
+  <section class="card">
+    {% if form.non_field_errors %}<div class="errorlist nonfield">{{ form.non_field_errors }}</div>{% endif %}
+    <div class="field"><label for="{{ form.facility.id_for_label }}">Facility</label>{{ form.facility }}{{ form.facility.errors }}</div>
+    <div id="facility-preview" class="facility-preview" hidden></div>
+    <button id="use-facility-location" class="btn secondary small" type="button" hidden>Use facility location</button>
+    <p id="facility-location-feedback" class="map-status" role="status"></p>
+    <div class="field" style="margin-top:16px">{{ form.location }}{{ form.location.errors }}</div>
+  </section>
+  <div class="form-actions"><button class="btn">Save collection point</button><a class="btn secondary" href="{% url 'blood_requests:detail' item.pk %}">Cancel</a></div>
+</form>
+{{ facility_options|json_script:'facility-options' }}
+{% endblock %}

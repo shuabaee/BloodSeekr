@@ -1,0 +1,45 @@
+{% extends 'shared/base.html' %}{% load static ui %}
+{% block assets %}<link rel="stylesheet" href="{% static 'css/blood_requests/blood_requests.css' %}"><script src="{% static 'js/blood_requests/explorer.js' %}" defer></script>{% endblock %}
+{% block title %}Blood requests{% endblock %}
+{% block content %}
+<header class="page-heading">
+  <div><span class="eyebrow">Find a way to help</span><h1>Blood requests</h1><p>Browse requests, see which ones match you, and coordinate a donation.</p></div>
+  <a class="btn" href="{% url 'blood_requests:create' %}">{% icon 'plus' 16 %} New blood request</a>
+</header>
+
+<nav class="tabs" aria-label="Request views">{% for key, name in tabs %}<a class="{% if mode == key %}active{% endif %}" href="?view={{ key }}" {% if mode == key %}aria-current="page"{% endif %}>{{ name }}{% if key == 'mine' and pending_offer_count %}<span class="nav-count" title="Offers waiting for your decision">{{ pending_offer_count }}</span>{% endif %}</a>{% endfor %}</nav>
+
+<form class="filters" method="get" data-autosubmit>
+  <input type="hidden" name="view" value="{{ mode }}">
+  <div class="filter-cell"><label for="q">Location or facility</label><input id="q" type="search" name="q" value="{{ query }}" placeholder="Search a city or facility"></div>
+  <div class="filter-cell"><label for="blood">Blood type</label><select id="blood" name="blood"><option value="">All types</option>{% for type in blood_types %}<option value="{{ type.code }}" {% if blood == type.code %}selected{% endif %}>{{ type }}</option>{% endfor %}</select></div>
+  <div class="filter-cell"><label for="urgency">Urgency</label><select name="urgency" id="urgency"><option value="">Any urgency</option><option value="routine" {% if urgency == 'routine' %}selected{% endif %}>Routine</option><option value="urgent" {% if urgency == 'urgent' %}selected{% endif %}>Urgent</option><option value="emergency" {% if urgency == 'emergency' %}selected{% endif %}>Emergency</option></select></div>
+  <div class="filter-cell"><label for="sort">Sort by</label><select name="sort" id="sort"><option value="">Soonest needed</option><option value="nearby" {% if sort == 'nearby' %}selected{% endif %}>Nearest first</option></select></div>
+  <div class="filter-actions"><button class="btn secondary">{% icon 'search' 16 %} Search</button></div>
+</form>
+
+{% if has_filters %}<div class="active-filters"><small>Filtering:</small>
+  {% if query %}<a class="chip" href="{% querystring q=None page=None %}">“{{ query }}” {% icon 'x' 12 %}</a>{% endif %}
+  {% if blood %}<a class="chip" href="{% querystring blood=None page=None %}">{{ blood }} {% icon 'x' 12 %}</a>{% endif %}
+  {% if urgency %}<a class="chip" href="{% querystring urgency=None page=None %}">{{ urgency|label }} {% icon 'x' 12 %}</a>{% endif %}
+  {% if sort %}<a class="chip" href="{% querystring sort=None page=None %}">Nearest first {% icon 'x' 12 %}</a>{% endif %}
+  <a class="text-link" href="?view={{ mode }}">Clear all</a></div>{% endif %}
+
+<div class="results-heading"><p><strong>{{ result_count }}</strong> request{{ result_count|pluralize }}{% if mode == 'matching' %} match you{% endif %}</p>
+  <div class="view-toggle" role="group" aria-label="Display"><button type="button" data-request-view="list" class="active" aria-pressed="true">{% icon 'list' 16 %} List</button><button type="button" data-request-view="map" aria-pressed="false">{% icon 'map' 16 %} Map</button></div></div>
+
+<div id="map-panel" class="map-panel card" hidden><div id="requests-map" class="request-map" data-endpoint="{% url 'blood_requests:map_data' %}" aria-label="Blood request locations" role="region"></div><p id="request-map-status" class="map-status" role="status">Loading request locations…</p><div class="map-legend"><span><i class="legend-dot"></i>Routine</span><span><i class="legend-dot urgent"></i>Urgent</span><span><i class="legend-dot emergency"></i>Emergency</span><span>City-centre pins are approximate. Distance is straight-line.</span></div></div>
+
+<div id="request-results">
+  <div class="grid">{% for item in page_obj %}{% include 'blood_requests/card.html' %}{% empty %}
+    {% url 'profile:profile' as profile_url %}{% url 'blood_requests:create' as create_url %}
+    {% if has_filters %}{% include 'shared/empty_state.html' with icon='search' title='No requests match those filters' text='Try removing a filter or searching a wider area.' action_url='?view='|add:mode action_label='Clear filters' %}
+    {% elif mode == 'matching' %}{% include 'shared/empty_state.html' with icon='droplet' title='No matches right now' text='Matches appear when a request needs your blood type near your saved location. Make sure your blood type, availability and map point are set.' action_url=profile_url action_label='Complete my donor profile' %}
+    {% elif mode == 'mine' %}{% include 'shared/empty_state.html' with icon='plus' title='You have not requested blood yet' text='Create a request and we will notify compatible donors nearby.' action_url=create_url action_label='Create a request' %}
+    {% elif mode == 'responses' %}{% include 'shared/empty_state.html' with icon='heart' title='You have not offered to donate yet' text='Open a request that matches you and choose “Offer to donate”.' action_url='?view=matching' action_label='See my matches' %}
+    {% else %}{% include 'shared/empty_state.html' with icon='droplet' title='No active requests' text='Everything is quiet right now. Check back soon.' %}{% endif %}
+  {% endfor %}</div>
+  {% include 'shared/pagination.html' %}
+</div>
+{% if mode == 'matching' and result_count %}<p class="page-note" style="margin-top:20px">{% icon 'info' 18 %}<span>Matches use compatible blood types, your availability and your saved matching radius. Set a map point in your profile for distance-based matching across nearby cities.</span></p>{% endif %}
+{% endblock %}

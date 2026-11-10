@@ -1,0 +1,21 @@
+{% load locations ui %}<article class="card request-card {{ item.urgency }}">
+  <div class="rc-top">
+    <span class="type-chip">{{ item.required_blood_type }}</span>
+    <div class="rc-title">
+      <span class="eyebrow">Request #{{ item.pk }}</span>
+      <h2>{% if mode == 'community' and not item.can_open %}{{ item.required_blood_type }} blood needed{% else %}<a href="{% url 'blood_requests:detail' item.pk %}">{{ item.patient_name }}</a>{% endif %}</h2>
+      <div class="badge-row"><span class="badge {{ item.urgency }}">{% if item.urgency == 'emergency' %}{% icon 'siren' 12 %}{% endif %}{{ item.urgency|label }}</span><span class="badge {{ item.status }}">{{ item.status|label }}</span></div>
+    </div>
+  </div>
+  <ul class="rc-facts">
+    <li class="due {{ item.needed_date|due_class }}">{% icon 'calendar' 16 %}<span>{{ item.needed_date|date:'M j, Y' }} <em>· {{ item.needed_date|days_until }}</em></span></li>
+    <li>{% icon 'droplet' 16 %}<span>{{ item.units_needed }} unit{{ item.units_needed|pluralize }} needed</span></li>
+    <li>{% icon 'pin' 16 %}<span>{{ item.location|location_label }}{% if item.distance != None %} <em>· {{ item.distance|floatformat:1 }} km away</em>{% endif %}</span></li>
+    {% if item.facility %}<li>{% icon 'building' 16 %}<span><a href="{% url 'facilities:detail' item.facility.pk %}">{{ item.facility }}</a></span></li>{% endif %}
+  </ul>
+  {% if item.units_done %}<div class="rc-progress"><div class="progress-label"><span>{{ item.units_done|floatformat:"-2" }} of {{ item.units_needed }} units donated</span><span>{{ item.progress_pct }}%</span></div><div class="progress gold"><span style="width:{{ item.progress_pct }}%"></span></div></div>{% endif %}
+  <div class="rc-foot">
+    {% if mode == 'community' and not item.can_open %}<small>Complete your donor profile to see if you match.</small><a class="btn small secondary" href="{% url 'profile:profile' %}">Update profile</a>
+    {% else %}<span></span><a class="btn small {% if item.urgency == 'emergency' %}{% else %}secondary{% endif %}" href="{% url 'blood_requests:detail' item.pk %}">View request {% icon 'arrow-right' 14 %}</a>{% endif %}
+  </div>
+</article>

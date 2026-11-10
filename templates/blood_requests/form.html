@@ -1,0 +1,29 @@
+{% extends 'shared/base.html' %}{% load static ui %}
+{% block assets %}<link rel="stylesheet" href="{% static 'css/blood_requests/blood_requests.css' %}"><script src="{% static 'js/blood_requests/facility.js' %}" defer></script><script src="{% static 'js/blood_requests/form.js' %}" defer></script>{% endblock %}
+{% block title %}New blood request{% endblock %}
+{% block content %}
+<header class="page-heading"><div><a class="breadcrumb" href="{% url 'blood_requests:list' %}">{% icon 'arrow-left' 14 %} All requests</a><span class="eyebrow">Start a donor request</span><h1>New blood request</h1><p>Tell us what is needed and where. Compatible donors nearby are notified right away.</p></div></header>
+<form method="post" class="request-form" id="request-form" novalidate>{% csrf_token %}
+  {% if form.non_field_errors %}<div class="errorlist nonfield">{{ form.non_field_errors }}</div>{% endif %}
+  <section class="card">
+    <div class="form-section-label"><span class="step-number">1</span><h2>Patient and blood needed</h2></div>
+    <div class="fields">
+      <div class="field full {% if form.required_blood_type.errors %}has-error{% endif %}"><span class="field-label">Blood type needed <span class="req">*</span></span>{{ form.required_blood_type }}{{ form.required_blood_type.errors }}<small id="compat-hint">Not sure? Check the <a href="{% url 'blood_data:guide' %}" target="_blank" rel="noopener">blood type guide</a>. Compatible donor types are found automatically.</small></div>
+      <div class="field {% if form.patient_name.errors %}has-error{% endif %}"><label for="{{ form.patient_name.id_for_label }}">Patient name <span class="req">*</span></label>{{ form.patient_name }}{{ form.patient_name.errors }}<small>Shown only to you, staff and donors who match or respond.</small></div>
+      <div class="field {% if form.units_needed.errors %}has-error{% endif %}"><label for="{{ form.units_needed.id_for_label }}">Units needed <span class="req">*</span></label><div class="stepper">{{ form.units_needed }}</div>{{ form.units_needed.errors }}<small>{{ form.units_needed.help_text }}</small></div>
+      <div class="field full {% if form.urgency.errors %}has-error{% endif %}"><span class="field-label">How urgent is it? <span class="req">*</span></span>{{ form.urgency }}{{ form.urgency.errors }}<small id="urgency-hint">Routine: planned or non-critical. Urgent: needed within a few days. Emergency: needed right away.</small></div>
+      <div class="field {% if form.needed_date.errors %}has-error{% endif %}"><label for="{{ form.needed_date.id_for_label }}">Needed by <span class="req">*</span></label>{{ form.needed_date }}{{ form.needed_date.errors }}<div class="quick-picks" data-date-picks><button class="btn secondary small" type="button" data-days="0">Today</button><button class="btn secondary small" type="button" data-days="1">Tomorrow</button><button class="btn secondary small" type="button" data-days="3">In 3 days</button><button class="btn secondary small" type="button" data-days="7">In a week</button></div></div>
+    </div>
+  </section>
+  <section class="card">
+    <div class="form-section-label"><span class="step-number">2</span><h2>Where should donors go?</h2></div>
+    <div class="field"><label for="{{ form.facility.id_for_label }}">Collection facility <small>(optional)</small></label>{{ form.facility }}{{ form.facility.errors }}<small>Pick a hospital or blood centre to reuse its address and map point.</small></div>
+    <div id="facility-preview" class="facility-preview" hidden></div>
+    <button id="use-facility-location" class="btn secondary small" type="button" hidden>Use facility location</button>
+    <p id="facility-location-feedback" class="map-status" role="status"></p>
+    <div class="field" style="margin-top:16px"><span class="field-label">Collection location <span class="req">*</span></span>{{ form.location }}{{ form.location.errors }}</div>
+  </section>
+  <div class="form-actions"><button class="btn large" type="submit">Post blood request</button><a class="btn secondary large" href="{% url 'blood_requests:list' %}?view=mine">Cancel</a></div>
+</form>
+{{ facility_options|json_script:'facility-options' }}
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends 'shared/base.html' %}{% load locations blood_tags static ui %}
+{% block assets %}<link rel="stylesheet" href="{% static 'css/blood_requests/blood_requests.css' %}"><script src="{% static 'js/blood_requests/share.js' %}" defer></script>{% endblock %}
+{% block title %}Request #{{ item.pk }}{% endblock %}
+{% block content %}
+<a class="breadcrumb" href="{% url 'blood_requests:list' %}">{% icon 'arrow-left' 14 %} All requests</a>
+
+<section class="card request-hero {{ item.urgency }}">
+  <span class="type-chip xl">{{ item.required_blood_type }}</span>
+  <div class="hero-main">
+    <span class="eyebrow">Blood request #{{ item.pk }}</span>
+    <h1>{{ item.patient_name }}</h1>
+    <div class="badge-row"><span class="badge {{ item.urgency }}">{% if item.urgency == 'emergency' %}{% icon 'siren' 12 %}{% endif %}{{ item.urgency|label }}</span><span class="badge dot {{ item.status }}">{{ item.status|label }}</span>{% if item.verification_status == 'rejected' %}<span class="badge rejected">Removed by staff</span>{% endif %}</div>
+  </div>
+  <div class="hero-progress">
+    <div class="progress-label"><span>{{ item.units_done|floatformat:"-2" }} of {{ item.units_needed }} unit{{ item.units_needed|pluralize }} donated</span><span>{{ item.progress_pct }}%</span></div>
+    <div class="progress gold"><span style="width:{{ item.progress_pct }}%"></span></div>
+    <p class="due {{ item.needed_date|due_class }}">{% icon 'calendar' 16 %} Needed by <strong>{{ item.needed_date|date:'M j, Y' }}</strong> · {{ item.needed_date|days_until }}</p>
+  </div>
+</section>
+
+<ol class="steps" aria-label="Request progress">{% for step in steps %}<li class="step {{ step.state }}"><span class="step-dot">{% if step.state == 'done' %}{% icon 'check' 14 %}{% elif step.state == 'failed' %}{% icon 'x' 14 %}{% else %}{{ forloop.counter }}{% endif %}</span><span class="step-text"><strong>{{ step.label }}</strong><small>{{ step.hint }}</small></span></li>{% endfor %}</ol>
+
+<div class="detail-grid">
+<div>
+  {% if can_respond %}<section class="card cta-card"><div><h2>{% icon 'heart' 20 %} You can help with this request</h2><p>Your blood type, availability and location match. Offering to donate lets the requester know you are willing — they will accept and share contact details with you.</p></div>
+    <form method="post" action="{% url 'blood_requests:respond' item.pk %}">{% csrf_token %}{% include 'shared/fields.html' with form=response_form %}<div class="actions"><button class="btn large">Offer to donate</button></div></form>
+    <small>The facility confirms your eligibility and screening before any donation.</small></section>
+  {% elif my_response %}<section class="card"><div class="card-head"><h2>Your offer</h2><span class="badge dot {{ my_response.response_status }}">{{ my_response.response_status|label }}</span></div>
+    <p>{{ my_response.notes|default:'No notes added.' }}</p>
+    {% if my_response.response_status == 'accepted' %}<div class="page-note" style="margin-top:12px">{% icon 'check-circle' 18 %}<span><strong>Your offer was accepted.</strong> Contact the requester to arrange: {{ item.requester.get_full_name|default:item.requester.username }} · {{ item.requester.email }}{% if item.requester.bloodseekr_profile.phone_number %} · {{ item.requester.bloodseekr_profile.phone_number }}{% endif %}</span></div>{% endif %}
+    {% if my_response.response_status == 'pending' or my_response.response_status == 'accepted' %}{% if not my_response.donation_record %}<form method="post" action="{% url 'blood_requests:response_action' item.pk my_response.pk %}">{% csrf_token %}<button class="btn danger small" name="action" value="withdraw" data-confirm="The requester will be told you can no longer donate." data-confirm-title="Withdraw your offer?" data-confirm-label="Withdraw offer">Withdraw offer</button></form>{% endif %}{% endif %}</section>{% endif %}
+
+  <section class="card"><div class="card-head"><h2>Request details</h2></div>
+    <dl class="details"><div><dt>Blood type needed</dt><dd>{{ item.required_blood_type }}</dd></div><div><dt>Units needed</dt><dd>{{ item.units_needed }}</dd></div><div><dt>Needed by</dt><dd>{{ item.needed_date|date:'F j, Y' }}</dd></div><div><dt>Posted</dt><dd>{{ item.created_at|date:'M j, Y' }} ({{ item.created_at|timesince }} ago)</dd></div><div><dt>Location</dt><dd>{{ item.location|location_label }}</dd></div><div><dt>Facility</dt><dd>{% if item.facility %}<a href="{% url 'facilities:detail' item.facility.pk %}">{{ item.facility }}</a>{% else %}Not specified{% endif %}</dd></div></dl>
+    <div class="compat-inline"><span class="field-label">Compatible donor types</span><div class="chip-list">{% for code in item.required_blood_type_id|donor_types %}<span class="chip">{{ code }}</span>{% endfor %}</div></div>
+  </section>
+
+  {% if owner or request.user.is_staff %}
+  <section class="card"><div class="card-head"><h2>{% icon 'users' 18 %} Donor offers <small>({{ responses|length }})</small></h2></div>
+    {% for response in responses %}<div class="offer">
+      <div class="offer-head"><span class="avatar">{{ response.donor_user|initial }}</span><div><strong>{{ response.donor_user.get_full_name|default:response.donor_user.username }}</strong><small>{{ response.donor_user.bloodseekr_profile.blood_type|default:'' }}{% if response.donor_user.bloodseekr_profile.is_verified %} · Verified{% endif %} · offered {{ response.responded_at|timesince }} ago</small></div><span class="badge dot {{ response.response_status }}">{{ response.response_status|label }}</span></div>
+      {% if response.notes %}<p class="offer-note">“{{ response.notes }}”</p>{% endif %}
+      {% if response.response_status == 'accepted' or response.response_status == 'completed' %}<p class="offer-contact">{% icon 'phone' 14 %} {{ response.donor_user.bloodseekr_profile.phone_number|default:'No phone provided' }} &nbsp; {% icon 'mail' 14 %} {{ response.donor_user.email }}</p>{% endif %}
+      <div class="actions">
+        {% if owner and active and response.response_status == 'pending' %}<form method="post" action="{% url 'blood_requests:response_action' item.pk response.pk %}">{% csrf_token %}<button class="btn small" name="action" value="accept">{% icon 'check' 14 %} Accept</button><button class="btn small danger" name="action" value="decline" data-confirm="The donor will be notified that you declined." data-confirm-title="Decline this offer?" data-confirm-label="Decline">Decline</button></form>{% endif %}
+        {% if response.response_status == 'accepted' %}<a class="btn small {% if response.donation_record %}secondary{% endif %}" href="{% url 'donations:record' response.pk %}">{% if response.donation_record %}Update donation{% else %}Record donation{% endif %}</a>{% endif %}
+        {% if response.donation_record %}<span class="badge dot {{ response.donation_record.donation_status }}">Donation {{ response.donation_record.donation_status|label|lower }}</span>{% endif %}
+      </div></div>
+    {% empty %}{% include 'shared/empty_state.html' with compact=True icon='users' title='No offers yet' text='Matching donors have been notified. Offers will appear here.' %}{% endfor %}
+  </section>
+
+  {% endif %}
+</div>
+
+<aside>
+  <section class="card"><div class="section-title-row"><h2>Collection location</h2>{% if owner and active %}<a href="{% url 'blood_requests:edit_location' item.pk %}">Edit {% icon 'edit' 13 %}</a>{% endif %}</div>
+    {% if map_points %}{{ map_points|json_script:'request-detail-points' }}<div class="detail-map" data-map-points="request-detail-points" aria-label="Blood request collection point" role="region"></div>{% else %}<p class="muted">This older request has no saved map point.</p>{% endif %}
+    <p style="margin-top:12px">{{ item.location|location_label }}</p>
+    <div class="actions" style="margin-top:0"><a class="btn secondary small" href="{{ item.location|directions_url }}" target="_blank" rel="noopener">{% icon 'external' 14 %} Directions</a>{% if item.facility %}<a class="btn secondary small" href="{% url 'facilities:detail' item.facility.pk %}">Facility</a>{% endif %}</div>
+  </section>
+
+  {% if owner %}
+  <section class="card"><h2>Manage request</h2>
+    {% if active %}
+    <form method="post" action="{% url 'blood_requests:status' item.pk %}" class="manage-actions">{% csrf_token %}
+      {% if item.status == 'open' %}<button class="btn secondary" name="status" value="in_progress">Mark as in progress</button>{% endif %}
+      <button class="btn secondary" name="status" value="fulfilled" data-confirm="Mark this request as fulfilled? Donors will be notified and it will close." data-confirm-title="All units received?" data-confirm-label="Mark fulfilled">{% icon 'check-circle' 16 %} Mark as fulfilled</button>
+      <button class="btn danger" name="status" value="cancelled" data-confirm="This closes the request and notifies donors who responded. Closed requests cannot be reopened." data-confirm-title="Cancel this request?" data-confirm-label="Cancel request">Cancel request</button>
+    </form>
+    <button class="btn ghost block" type="button" data-share data-share-title="Blood needed" data-share-text="{% if item.urgency == 'emergency' %}URGENT: {% endif %}{{ item.units_needed }} unit{{ item.units_needed|pluralize }} of {{ item.required_blood_type }} blood needed{% if item.facility %} at {{ item.facility.name }}{% endif %}, {{ item.location|location_label }}, by {{ item.needed_date|date:'M j' }}. Compatible donors: {{ item.required_blood_type_id|donor_types|join:', ' }}. Sign up to help on BloodSeekr.">{% icon 'external' 16 %} Share this need</button>
+    <small>Sharing leaves out the patient’s name. Recording completed donations can fulfill the request automatically.</small>
+    {% else %}<p>{% icon 'check-circle' 16 %} This request is closed.</p>{% endif %}
+  </section>
+  <section class="card"><h2>Matching volunteers</h2>
+    {% for donor in matched_donors %}<div class="list-item donor-row"><span class="avatar">{{ donor.user|initial }}</span><div><strong>{{ donor.user.get_full_name|default:donor.user.username }}</strong><small>{{ donor.blood_type }} · {{ donor.location|location_label }}</small></div>{% if donor.is_verified %}<span class="badge verified">Verified</span>{% endif %}</div>{% empty %}<p class="muted">No visible matching donors yet. Sharing the request can help.</p>{% endfor %}
+    <small>Donors who keep their profile private are hidden. Contact details are shared only after you accept an offer.</small></section>
+  {% endif %}
+</aside>
+</div>
+{% endblock %}
