@@ -1,0 +1,33 @@
+{% extends 'shared/base.html' %}{% load static ui notification_tags %}
+{% block assets %}<link rel="stylesheet" href="{% static 'css/notifications/notifications.css' %}">{% endblock %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<header class="page-heading">
+  <div><span class="eyebrow">Stay updated</span><h1>Notifications</h1><p>{% if unread_total %}You have <strong>{{ unread_total }}</strong> unread notification{{ unread_total|pluralize }}.{% else %}You are all caught up.{% endif %}</p></div>
+  {% if unread_total %}<form method="post" action="{% url 'notifications:read_all' %}">{% csrf_token %}<button class="btn secondary">{% icon 'check' 16 %} Mark all as read</button></form>{% endif %}
+</header>
+<nav class="tabs" aria-label="Filter notifications"><a href="{% url 'notifications:list' %}" class="{% if not unread_only %}active{% endif %}">All <small>({{ total }})</small></a><a href="?unread=1" class="{% if unread_only %}active{% endif %}">Unread <small>({{ unread_total }})</small></a></nav>
+
+{% if page_obj %}
+<div class="notice-list">
+{% for notice in page_obj %}
+  {% ifchanged notice.group %}<h2 class="notice-group">{{ notice.group }}</h2>{% endifchanged %}
+  <article class="notice {% if not notice.is_read %}is-unread{% endif %}">
+    <span class="notice-icon">{% icon notice.notification_type|notice_icon 20 %}</span>
+    <div class="notice-body">
+      <h3>{{ notice.title }}{% if not notice.is_read %}<span class="unread-dot" title="Unread"></span>{% endif %}</h3>
+      <p>{{ notice.message }}</p>
+      <small>{{ notice.created_at|timesince }} ago</small>
+    </div>
+    <div class="notice-actions">
+      {% if notice.blood_request_id %}<form method="post" action="{% url 'notifications:read' notice.pk %}">{% csrf_token %}<input type="hidden" name="open" value="1"><button class="btn small {% if notice.is_read %}secondary{% endif %}">View request</button></form>{% endif %}
+      {% if not notice.is_read %}<form method="post" action="{% url 'notifications:read' notice.pk %}">{% csrf_token %}<button class="btn small ghost">Mark read</button></form>{% endif %}
+    </div>
+  </article>
+{% endfor %}
+</div>
+{% include 'shared/pagination.html' %}
+{% else %}
+{% include 'shared/empty_state.html' with icon='bell' title=unread_only|yesno:"No unread notifications,No notifications yet" text='We will let you know when a request matches you, a donor responds, or a request you follow changes.' %}
+{% endif %}
+{% endblock %}

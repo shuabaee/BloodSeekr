@@ -1,0 +1,13 @@
+/* Notifications feature. */
+.notice-group { font-size: var(--text-xs); text-transform: uppercase; letter-spacing: .1em; color: var(--ink-500); margin: var(--space-5) 0 var(--space-2); font-weight: 750; }
+.notice-group:first-child { margin-top: 0; }
+.notice { display: grid; grid-template-columns: auto 1fr auto; gap: var(--space-4); align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: var(--space-4); margin-bottom: var(--space-2); transition: border-color .15s; }
+.notice.is-unread { border-color: var(--brand-200); background: linear-gradient(90deg, var(--brand-50), var(--surface) 40%); }
+.notice-icon { width: 2.625rem; height: 2.625rem; border-radius: 0.75rem; display: grid; place-items: center; background: #f4eeee; color: var(--ink-600); }
+.notice.is-unread .notice-icon { background: var(--brand-100); color: var(--brand-700); }
+.notice-body h3 { display: flex; align-items: center; gap: 0.5rem; font-size: var(--text-md); }
+.notice-body p { margin: 0.125rem 0 0.25rem; color: var(--ink-700); }
+.unread-dot { width: 0.5rem; height: 0.5rem; background: var(--brand-600); border-radius: 50%; }
+.notice-actions { display: flex; gap: 0.375rem; flex-wrap: wrap; justify-content: flex-end; }
+.notice-actions form { margin: 0; }
+@media (max-width: 640px) { .notice { grid-template-columns: auto 1fr; } .notice-actions { grid-column: 1 / -1; justify-content: flex-start; } }
