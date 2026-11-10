@@ -1,0 +1,39 @@
+{% extends 'shared/base.html' %}{% load static ui %}
+{% block title %}Blood type guide{% endblock %}
+{% block assets %}<link rel="stylesheet" href="{% static 'css/blood_data/guide.css' %}"><script src="{% static 'js/blood_data/guide.js' %}" defer></script>{% endblock %}
+{% block content %}
+<header class="page-heading"><div><span class="eyebrow">Know your match</span><h1>Blood type guide</h1><p>Pick a blood type to see who it can donate to and who it can receive from. This is general guidance for red blood cell donation.</p></div></header>
+
+{{ matrix|json_script:'compat-data' }}
+<section class="card">
+  <h2>Choose a blood type</h2>
+  <div class="pill-picker" id="type-picker" role="group" aria-label="Blood type">{% for code in types %}<button type="button" data-type="{{ code }}" aria-pressed="{% if code == my_type %}true{% else %}false{% endif %}">{{ code }}</button>{% endfor %}</div>
+  <div class="compat-result" id="compat-result" data-initial="{{ my_type|default:'' }}" aria-live="polite">
+    <div class="compat-col"><span class="compat-label">{% icon 'arrow-right' 16 %} Can donate to</span><div class="chip-list" id="can-give"></div></div>
+    <div class="compat-col"><span class="compat-label">{% icon 'arrow-left' 16 %} Can receive from</span><div class="chip-list" id="can-get"></div></div>
+  </div>
+  <p class="muted" id="compat-hint">{% if not my_type %}Tip: save your blood type in <a href="{% url 'profile:profile' %}">your profile</a> and it will be selected for you.{% endif %}</p>
+</section>
+
+<section class="card table-wrap">
+  <div class="card-head" style="padding:20px 20px 0"><h2>Full compatibility chart</h2></div>
+  <table class="compat-table" aria-label="Red blood cell compatibility chart">
+    <thead><tr><th scope="col">Donor ↓ / Recipient →</th>{% for code in types %}<th scope="col">{{ code }}</th>{% endfor %}</tr></thead>
+    <tbody>{% for row in rows %}<tr><th scope="row">{{ row.donor }}</th>{% for cell in row.cells %}<td class="{% if cell.ok %}yes{% else %}no{% endif %}">{% if cell.ok %}{% icon 'check' 16 %}<span class="sr-only">Compatible</span>{% else %}<span aria-hidden="true">–</span><span class="sr-only">Not compatible</span>{% endif %}</td>{% endfor %}</tr>{% endfor %}</tbody>
+  </table>
+</section>
+
+<div class="grid">
+  <section class="card"><h2>{% icon 'sparkle' 18 %} Good to know</h2>
+    <ul class="fact-list">
+      <li><strong>O-</strong> is the universal red cell donor type, so it is always in demand for emergencies.</li>
+      <li><strong>AB+</strong> can receive red cells from every blood type.</li>
+      <li>Rh-negative patients can only receive Rh-negative red cells, so negative donors are especially valuable.</li>
+    </ul>
+  </section>
+  <section class="card tinted"><h2>{% icon 'shield' 18 %} Important</h2>
+    <p class="muted">The collecting facility always confirms blood typing, screening and crossmatch before a transfusion. Use this chart to understand matches, not to make medical decisions.</p>
+    <div class="actions"><a class="btn secondary small" href="{% url 'blood_requests:list' %}">Browse requests</a><a class="btn secondary small" href="{% url 'facilities:list' %}">Find a facility</a></div>
+  </section>
+</div>
+{% endblock %}

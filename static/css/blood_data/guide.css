@@ -1,0 +1,12 @@
+/* Blood type guide feature. */
+.compat-result { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin: var(--space-5) 0 var(--space-3); }
+.compat-col { background: var(--surface-soft); border: 1px solid var(--line); border-radius: var(--radius); padding: var(--space-4); }
+.compat-label { display: flex; align-items: center; gap: 0.375rem; font-size: var(--text-xs); font-weight: 750; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-600); margin-bottom: 0.625rem; }
+.compat-col .chip { font-size: var(--text-md); padding: 0.375rem 0.875rem; }
+.compat-table th, .compat-table td { text-align: center; padding: 0.6875rem 0.5rem; }
+.compat-table tbody th { background: var(--surface-soft); color: var(--brand-700); font-size: var(--text-sm); }
+.compat-table td.yes { color: var(--ok-600); background: var(--ok-50); }
+.compat-table td.no { color: var(--ink-400); }
+.compat-table tr.is-selected th, .compat-table tr.is-selected td.no { background: var(--gold-50); }
+.fact-list { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.625rem; color: var(--ink-700); }
+@media (max-width: 640px) { .compat-result { grid-template-columns: 1fr; } .compat-table { font-size: var(--text-xs); } }
