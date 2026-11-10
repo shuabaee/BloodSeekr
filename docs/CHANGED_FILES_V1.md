@@ -1,0 +1,81 @@
+# Changed files
+
+Model definitions and all 20 migration package/files are unchanged. No new migrations.
+
+## Modified
+
+- `.gitignore`
+- `README.md`
+- `SUPABASE_SETUP.txt`
+- `apps/blood_requests/admin.py`
+- `apps/blood_requests/tests.py`
+- `apps/donations/admin.py`
+- `apps/facilities/admin.py`
+- `apps/home/tests.py`
+- `apps/home/views.py`
+- `apps/login/tests.py`
+- `apps/login/views.py`
+- `apps/profile/apps.py`
+- `apps/profile/forms.py`
+- `apps/profile/tests.py`
+- `apps/profile/views.py`
+- `apps/register/tests.py`
+- `apps/register/views.py`
+- `apps/user_settings/forms.py`
+- `apps/user_settings/tests.py`
+- `config/settings.py`
+- `config/urls.py`
+- `templates/home/home.html`
+- `templates/login/login.html`
+- `templates/profile/profile.html`
+- `templates/user_settings/settings.html`
+
+## Added
+
+- `.env.example`
+- `START_HERE.md`
+- `apps/blood_data/management/commands/seed_blood_data.py`
+- `apps/blood_data/services.py`
+- `apps/blood_requests/forms.py`
+- `apps/blood_requests/services.py`
+- `apps/blood_requests/urls.py`
+- `apps/blood_requests/views.py`
+- `apps/donations/forms.py`
+- `apps/donations/urls.py`
+- `apps/donations/views.py`
+- `apps/facilities/management/commands/seed_demo_facilities.py`
+- `apps/facilities/urls.py`
+- `apps/facilities/views.py`
+- `apps/notifications/context_processors.py`
+- `apps/notifications/services.py`
+- `apps/notifications/urls.py`
+- `apps/notifications/views.py`
+- `apps/profile/signals.py`
+- `apps/register/forms.py`
+- `config/test_settings.py`
+- `docs/DEMO_SUPPORTING_DOCUMENT.pdf`
+- `docs/ORIGINAL_README.md`
+- `docs/ORIGINAL_SUPABASE_SETUP.txt`
+- `docs/VERIFY_SUPABASE.sql`
+- `docs/WORKFLOW_RULES.md`
+- `static/css/blood_requests/blood_requests.css`
+- `static/css/donations/donations.css`
+- `static/css/facilities/facilities.css`
+- `static/css/notifications/notifications.css`
+- `static/css/shared/site.css`
+- `templates/blood_requests/card.html`
+- `templates/blood_requests/detail.html`
+- `templates/blood_requests/form.html`
+- `templates/blood_requests/list.html`
+- `templates/donations/form.html`
+- `templates/donations/list.html`
+- `templates/facilities/detail.html`
+- `templates/facilities/list.html`
+- `templates/notifications/list.html`
+- `templates/shared/base.html`
+- `templates/shared/fields.html`
+- `templates/shared/messages.html`
+- `templates/shared/navigation.html`
+- `templates/shared/pagination.html`
+- `docs/CHANGED_FILES.md`
+- `docs/TEST_REPORT.md`

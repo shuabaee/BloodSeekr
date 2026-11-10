@@ -1,0 +1,31 @@
+{
+  "desktop_viewport": "1440x1000",
+  "mobile_viewport": "390x844",
+  "workflow_results": {
+    "passed": [
+      "Login and dashboard",
+      "Facility prefill + supporting document + request creation",
+      "Country/province/city cascade, city pin, GPS and profile update",
+      "Matching radius settings",
+      "Map pins, popups, radius circle and list/map switch",
+      "Eligible donor response",
+      "Acceptance, facility-default donation record and fulfillment",
+      "Staff creates a pinned collection facility",
+      "Notification read action",
+      "Mobile layout, picker and accessible logout"
+    ],
+    "javascript_errors": []
+  },
+  "focused_results": {
+    "passed": [
+      "Real browser registration",
+      "Fresh desktop list screenshot",
+      "Matching radius circle exists",
+      "Map click saves profile coordinates",
+      "Failed Google script falls back to Leaflet"
+    ],
+    "javascript_errors": [],
+    "background_tiles": "Not fetched in focused automation; network isolated."
+  },
+  "external_maps": "No live Google key supplied. Test transport proxy received blocked OSM tiles; external backgrounds must be verified locally. Pins, popup/list/map controls, GPS and point persistence passed; origin-only referrer policy is shipped."
+}

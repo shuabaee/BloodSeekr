@@ -1,0 +1,7 @@
+Use your existing Supabase project and private .env. Do not reset the database or migrations.
+See START_HERE.md sections 2 and 4 for exact commands and verification.
+No new migrations or schema changes were created. All existing migration files are unchanged.
+Tests must use: python manage.py test --settings=config.test_settings
+This uses an isolated SQLite database, not Supabase.
+Lookup initialization: python manage.py seed_blood_data (adds missing rows only).
+Optional fictional facilities: python manage.py seed_demo_facilities.

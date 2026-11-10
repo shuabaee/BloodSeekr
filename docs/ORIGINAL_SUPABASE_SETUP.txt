@@ -1,0 +1,53 @@
+BLOODSEEKR + SUPABASE SETUP
+============================
+
+1. Open your Supabase project.
+2. Select Connect.
+3. Choose Session Pooler if your network is IPv4-only.
+4. Under the URI connection type, copy the exact PostgreSQL connection string.
+
+5. In this project, copy:
+      .env.example
+   to:
+      .env
+
+6. Replace DATABASE_URL with the exact Session Pooler URI from Supabase:
+
+   DATABASE_URL=postgresql://postgres.PROJECT_REF:YOUR_PASSWORD@POOLER_HOST:5432/postgres
+
+   If the database password contains special characters, use the encoded form required in a URL.
+
+7. Generate a Django secret key:
+
+   python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+
+   Copy the result into:
+
+   DJANGO_SECRET_KEY=YOUR_GENERATED_SECRET_KEY
+
+8. Install dependencies:
+
+   pip install -r requirements.txt
+
+9. Verify configuration:
+
+   python manage.py check
+
+10. Create model migration instructions if there are model changes:
+
+   python manage.py makemigrations
+
+11. Apply migrations to Supabase:
+
+   python manage.py migrate
+
+12. Start BloodSeekr:
+
+   python manage.py runserver
+
+13. Verify actual data in Supabase Table Editor after registering a user,
+    updating Profile, and saving Settings.
+
+SECURITY
+--------
+Do not submit or commit .env. It is excluded by .gitignore.
