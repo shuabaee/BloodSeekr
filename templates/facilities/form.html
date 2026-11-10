@@ -1,0 +1,10 @@
+{% extends 'shared/base.html' %}{% load static ui %}
+{% block assets %}<link rel="stylesheet" href="{% static 'css/facilities/facilities.css' %}">{% endblock %}
+{% block title %}{% if facility %}Edit facility{% else %}Add facility{% endif %}{% endblock %}
+{% block content %}
+<header class="page-heading"><div><a class="breadcrumb" href="{% url 'facilities:list' %}">{% icon 'arrow-left' 14 %} All facilities</a><span class="eyebrow">Staff only</span><h1>{% if facility %}Edit {{ facility.name }}{% else %}Add collection facility{% endif %}</h1><p>Save contact details and pin the collection entrance. Verification is managed in the admin site.</p></div></header>
+<form method="post" novalidate>{% csrf_token %}
+  <section class="card">{% include 'shared/fields.html' %}</section>
+  <div class="form-actions"><button class="btn">Save facility</button><a class="btn secondary" href="{% url 'facilities:list' %}">Cancel</a></div>
+</form>
+{% endblock %}

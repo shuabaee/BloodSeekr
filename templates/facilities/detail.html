@@ -1,0 +1,28 @@
+{% extends 'shared/base.html' %}{% load static locations ui %}
+{% block assets %}<link rel="stylesheet" href="{% static 'css/facilities/facilities.css' %}"><link rel="stylesheet" href="{% static 'css/blood_requests/blood_requests.css' %}">{% endblock %}
+{% block title %}{{ facility.name }}{% endblock %}
+{% block content %}
+<a class="breadcrumb" href="{% url 'facilities:list' %}">{% icon 'arrow-left' 14 %} All facilities</a>
+<header class="page-heading">
+  <div><span class="eyebrow">Collection facility</span><h1>{{ facility.name }}</h1><div class="badge-row"><span class="badge">{{ facility.facility_type|label }}</span><span class="badge {% if facility.is_verified %}verified{% endif %}">{% if facility.is_verified %}{% icon 'shield' 12 %} Verified{% else %}Unverified{% endif %}</span></div></div>
+  <div class="actions"><a class="btn" href="{% url 'blood_requests:create' %}?facility={{ facility.pk }}">{% icon 'plus' 16 %} Create request here</a>{% if request.user.is_staff %}<a class="btn secondary" href="{% url 'facilities:edit' facility.pk %}">{% icon 'edit' 16 %} Edit</a>{% endif %}</div>
+</header>
+<div class="detail-grid">
+  <section>
+    <div class="card"><div class="card-head"><h2>Active requests here ({{ active_requests|length }})</h2></div><p class="muted">Help with a current need or coordinate your own request at this facility.</p></div>
+    <div class="stack">{% for item in active_requests %}{% include 'blood_requests/card.html' with mode='community' %}{% empty %}{% include 'shared/empty_state.html' with icon='droplet' compact=True title='No active requests' text='Nothing is needed at this facility right now.' %}{% endfor %}</div>
+  </section>
+  <aside>
+    <section class="card"><h2>Collection point</h2>
+      {% if map_points %}{{ map_points|json_script:'facility-map-points' }}<div class="detail-map" data-map-points="facility-map-points" aria-label="Facility location" role="region"></div>{% else %}<p class="page-note">This facility has not saved a precise map point yet.</p>{% endif %}
+      <p style="margin-top:12px">{{ facility.address|location_label }}</p>
+      <div class="actions" style="margin-top:0"><a class="btn secondary small" href="{{ facility_data.directions_url }}" target="_blank" rel="noopener">{% icon 'external' 14 %} Get directions</a></div>
+    </section>
+    <section class="card"><h2>Contact</h2>
+      <dl class="details single"><div><dt>Phone</dt><dd>{{ facility.contact_phone }}</dd></div><div><dt>Email</dt><dd>{{ facility.contact_email }}</dd></div><div><dt>Completed donations recorded</dt><dd>{{ completed_count }}</dd></div></dl>
+      <div class="actions">{% if facility.contact_phone != 'Not provided' %}<a class="btn secondary small" href="tel:{{ facility.contact_phone }}">{% icon 'phone' 14 %} Call</a>{% endif %}<a class="btn secondary small" href="mailto:{{ facility.contact_email }}">{% icon 'mail' 14 %} Email</a></div>
+      <small>Confirm donation arrangements with the facility before attending.</small>
+    </section>
+  </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'shared/base.html' %}{% load static locations ui %}
+{% block assets %}<link rel="stylesheet" href="{% static 'css/facilities/facilities.css' %}">{% endblock %}
+{% block title %}Facilities{% endblock %}
+{% block content %}
+<header class="page-heading">
+  <div><span class="eyebrow">Choose where to donate</span><h1>Collection facilities</h1><p>Hospitals, blood centres and clinics where donations are collected.</p></div>
+  {% if request.user.is_staff %}<a class="btn" href="{% url 'facilities:add' %}">{% icon 'plus' 16 %} Add facility</a>{% endif %}
+</header>
+<form class="filters" method="get" data-autosubmit>
+  <div class="filter-cell"><label for="q">Facility or city</label><input name="q" id="q" type="search" value="{{ query }}" placeholder="Search facilities"></div>
+  <div class="filter-cell"><label for="type">Type</label><select name="type" id="type"><option value="">All types</option><option value="hospital" {% if kind == 'hospital' %}selected{% endif %}>Hospital</option><option value="blood_center" {% if kind == 'blood_center' %}selected{% endif %}>Blood centre</option><option value="clinic" {% if kind == 'clinic' %}selected{% endif %}>Clinic</option></select></div>
+  <div class="filter-cell"><label for="verified">Verification</label><select name="verified" id="verified"><option value="">Any status</option><option value="1" {% if verified_only %}selected{% endif %}>Verified only</option></select></div>
+  <div class="filter-cell"><label for="sort">Sort</label><select name="sort" id="sort"><option value="">City and name</option><option value="nearby" {% if sort == 'nearby' %}selected{% endif %}>Nearest first</option></select></div>
+  <div class="filter-actions"><button class="btn secondary">{% icon 'search' 16 %} Search</button></div>
+</form>
+<div class="results-heading"><p><strong>{{ facility_count }}</strong> facilit{{ facility_count|pluralize:'y,ies' }}</p></div>
+<div class="grid">{% for facility in page_obj %}
+  <article class="card facility-card">
+    <div class="facility-top"><span class="facility-symbol">{% icon 'building' 22 %}</span>
+      <div><h2><a href="{% url 'facilities:detail' facility.pk %}">{{ facility.name }}</a></h2>
+        <div class="badge-row"><span class="badge">{{ facility.facility_type|label }}</span><span class="badge {% if facility.is_verified %}verified{% endif %}">{% if facility.is_verified %}{% icon 'shield' 12 %} Verified{% else %}Unverified{% endif %}</span></div></div></div>
+    <p class="muted loc">{% icon 'pin' 16 %} <span>{{ facility.address|location_label }}</span></p>
+    <div class="statline"><span><strong>{{ facility.active_request_count }}</strong> active request{{ facility.active_request_count|pluralize }}</span>{% if facility.distance != None %}<span>{{ facility.distance|floatformat:1 }} km away</span>{% endif %}</div>
+    <div class="actions"><a class="btn small" href="{% url 'blood_requests:create' %}?facility={{ facility.pk }}">Create request here</a><a class="btn small secondary" href="{% url 'facilities:detail' facility.pk %}">Details</a><a class="btn small ghost" href="{{ facility.directions }}" target="_blank" rel="noopener">{% icon 'external' 14 %} Directions</a></div>
+  </article>
+{% empty %}{% include 'shared/empty_state.html' with icon='building' title='No facilities found' text='Try a different search. Staff can add collection locations.' %}{% endfor %}</div>
+{% include 'shared/pagination.html' %}
+{% endblock %}
