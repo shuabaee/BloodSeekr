@@ -1,0 +1,10 @@
+/* Profile feature. */
+.profile-intro { display: flex; gap: var(--space-4); align-items: center; }
+.profile-intro h1 { margin: 0.125rem 0 0; }
+.profile-grid > form > .card { margin-bottom: var(--space-4); }
+.strength-value { font-size: var(--text-xl); color: var(--brand-700); }
+.todo-list { list-style: none; padding: 0; margin: var(--space-4) 0 0; display: grid; gap: 0.75rem; }
+.todo-list li { display: flex; gap: 0.625rem; align-items: flex-start; }
+.todo-list .icon { margin-top: 0.1875rem; color: var(--brand-600); background: var(--brand-50); border-radius: 50%; padding: 0.1875rem; width: 1.25rem; height: 1.25rem; }
+.todo-list strong { display: block; font-size: var(--text-sm); }
+.compat-label { display: block; font-size: var(--text-xs); font-weight: 750; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-600); margin-bottom: 0.5rem; }

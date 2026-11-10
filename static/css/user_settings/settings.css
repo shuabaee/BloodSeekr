@@ -1,0 +1,6 @@
+/* Settings feature. */
+.settings-page { max-width: 52rem; margin-inline: auto; }
+.card.narrow { max-width: 32.5rem; }
+.security-row { display: flex; justify-content: space-between; align-items: center; gap: var(--space-4); flex-wrap: wrap; }
+.field.has-error input { border-color: var(--danger-600); }
+.field ul:not(.errorlist) { margin: 0.375rem 0 0; padding-left: 1.125rem; color: var(--ink-500); font-size: var(--text-xs); }

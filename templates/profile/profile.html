@@ -1,0 +1,68 @@
+{% extends 'shared/base.html' %}{% load static locations blood_tags ui %}
+{% block title %}My profile{% endblock %}
+{% block assets %}<link rel="stylesheet" href="{% static 'css/profile/profile.css' %}"><script src="{% static 'js/profile/profile.js' %}" defer></script>{% endblock %}
+{% block content %}
+<header class="page-heading">
+  <div class="profile-intro"><span class="avatar lg">{{ request.user|initial }}</span>
+    <div><span class="eyebrow">Your account and donor information</span><h1>{{ request.user.get_full_name|default:request.user.username }}</h1>
+      <div class="badge-row"><span class="badge {% if profile.is_verified %}verified{% endif %}">{% icon 'shield' 14 %} {% if profile.is_verified %}Verified profile{% else %}Not yet verified{% endif %}</span>{% if profile.blood_type_id %}<span class="badge">{% icon 'droplet' 14 %} {{ profile.blood_type }}</span>{% endif %}</div></div>
+  </div>
+</header>
+
+<div class="detail-grid profile-grid">
+<form method="post" id="profile-form" novalidate>{% csrf_token %}
+  <section class="card">
+    <div class="form-section-label"><span class="step-number">1</span><h2>Personal information</h2></div>
+    {% include 'shared/fields.html' with form=user_form %}
+    <p class="muted" style="margin-top:14px"><small>Username: <strong>@{{ request.user.username }}</strong> (cannot be changed)</small></p>
+  </section>
+
+  <section class="card">
+    <div class="form-section-label"><span class="step-number">2</span><h2>Donor details</h2></div>
+    <div class="fields">
+      <div class="field {% if profile_form.blood_type.errors %}has-error{% endif %}"><span class="field-label" id="blood-type-label">Blood type</span>{{ profile_form.blood_type }}{{ profile_form.blood_type.errors }}<small>Changing your blood type resets your verified status until staff review it again.</small></div>
+      <div class="field {% if profile_form.phone_number.errors %}has-error{% endif %}"><label for="{{ profile_form.phone_number.id_for_label }}">Phone number</label>{{ profile_form.phone_number }}{{ profile_form.phone_number.errors }}</div>
+      <div class="field {% if profile_form.date_of_birth.errors %}has-error{% endif %}"><label for="{{ profile_form.date_of_birth.id_for_label }}">Date of birth</label>{{ profile_form.date_of_birth }}{{ profile_form.date_of_birth.errors }}</div>
+    </div>
+    <label class="switch-setting" for="{{ profile_form.available_to_donate.id_for_label }}"><span><strong id="availability-text">Available to donate</strong><small>When on, you are matched with compatible requests near you. A blood type, phone number and location are required.</small></span>{{ profile_form.available_to_donate }}</label>
+    {{ profile_form.available_to_donate.errors }}
+  </section>
+
+  <section class="card">
+    <div class="form-section-label"><span class="step-number">3</span><h2>Your matching location</h2></div>
+    <p class="muted">Use a nearby landmark or general area if you prefer not to pin your home. Your exact point is never shown on the community map.</p>
+    {{ profile_form.location }}{{ profile_form.location.errors }}
+  </section>
+
+  <div class="form-actions"><button class="btn" type="submit">Save profile</button><a class="btn secondary" href="{% url 'home:home' %}">Cancel</a></div>
+</form>
+
+<aside class="stack">
+  <section class="card">
+    <div class="card-head"><h2>Profile strength</h2><strong class="strength-value">{{ strength.percent }}%</strong></div>
+    <div class="progress" role="progressbar" aria-valuenow="{{ strength.percent }}" aria-valuemin="0" aria-valuemax="100"><span style="width:{{ strength.percent }}%"></span></div>
+    {% if strength.missing %}
+      <ul class="todo-list">{% for item in strength.missing %}<li>{% icon 'plus' 14 %}<span><strong>{{ item.label }}</strong><small>{{ item.hint }}</small></span></li>{% endfor %}</ul>
+    {% else %}<p class="muted" style="margin-top:12px">{% icon 'check-circle' 16 %} Your profile is complete. Nicely done!</p>{% endif %}
+  </section>
+
+  {% if profile.blood_type_id %}
+  <section class="card">
+    <h2>Who you can help</h2>
+    <p class="muted"><small>Red blood cell compatibility for {{ profile.blood_type }}.</small></p>
+    <span class="compat-label">Can donate to</span>
+    <div class="chip-list">{% for code in profile.blood_type_id|recipient_types %}<span class="chip">{{ code }}</span>{% endfor %}</div>
+    <span class="compat-label" style="margin-top:14px">Can receive from</span>
+    <div class="chip-list">{% for code in profile.blood_type_id|donor_types %}<span class="chip muted">{{ code }}</span>{% endfor %}</div>
+    <a class="text-link" style="margin-top:12px" href="{% url 'blood_data:guide' %}">Open the blood type guide {% icon 'arrow-right' 14 %}</a>
+  </section>
+  {% endif %}
+
+  <section class="card tinted">
+    <h2>Donation readiness</h2>
+    {% if donation.can_donate_now %}<p>{% icon 'check-circle' 16 %} You are not within a waiting period.</p>{% else %}<p>{% icon 'clock' 16 %} Your next donation window opens in about <strong>{{ donation.days_left }} day{{ donation.days_left|pluralize }}</strong> ({{ donation.next_eligible|date:'M j, Y' }}).</p>{% endif %}
+    <small>Based on your last completed donation. Facilities confirm eligibility.</small>
+  </section>
+</aside>
+</div>
+{% endblock %}
