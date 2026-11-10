@@ -1,0 +1,32 @@
+{% extends 'shared/auth_base.html' %}{% load static ui %}
+{% block title %}Create account{% endblock %}
+{% block assets %}<link rel="stylesheet" href="{% static 'css/register/register.css' %}"><script src="{% static 'js/register/register.js' %}" defer></script>{% endblock %}
+{% block visual_image %}{% static 'images/register/blood-donation.png' %}{% endblock %}
+{% block container_class %}wide{% endblock %}
+{% block visual %}<div><h1>Join a community <span>willing to help.</span></h1><p>Create an account to request blood when you need it, and volunteer as a donor when you can.</p></div>{% endblock %}
+{% block content %}
+<span class="eyebrow">Create an account</span>
+<h2>Join BloodSeekr</h2>
+<p class="auth-subtitle">It takes about a minute. You can finish your donor profile afterwards.</p>
+{% if error_summary %}<div class="alert alert-error" role="alert">{% icon 'alert' 18 %}<span>Please fix the highlighted fields below.</span></div>{% endif %}
+<form method="post" class="auth-card" id="register-form" novalidate>
+  {% csrf_token %}
+  <div class="form-row">
+    <div class="field{% if errors.first_name %} has-error{% endif %}"><label for="first_name">First name</label><input id="first_name" type="text" name="first_name" value="{{ submitted.first_name }}" autocomplete="given-name" required autofocus>{% include 'register/_errors.html' with items=errors.first_name %}</div>
+    <div class="field{% if errors.last_name %} has-error{% endif %}"><label for="last_name">Last name</label><input id="last_name" type="text" name="last_name" value="{{ submitted.last_name }}" autocomplete="family-name" required>{% include 'register/_errors.html' with items=errors.last_name %}</div>
+  </div>
+  <div class="field{% if errors.username %} has-error{% endif %}"><label for="username">Username</label><input id="username" type="text" name="username" value="{{ submitted.username }}" autocomplete="username" autocapitalize="none" spellcheck="false" required><small>Letters, numbers and @ . + - _ only.</small>{% include 'register/_errors.html' with items=errors.username %}</div>
+  <div class="field{% if errors.email %} has-error{% endif %}"><label for="email">Email</label><input id="email" type="email" name="email" value="{{ submitted.email }}" placeholder="you@example.com" autocomplete="email" required><small>Used for account recovery and optional alerts.</small>{% include 'register/_errors.html' with items=errors.email %}</div>
+  <div class="form-row">
+    <div class="field{% if errors.password %} has-error{% endif %}"><label for="password">Password</label><div class="password-wrap"><input id="password" type="password" name="password" autocomplete="new-password" required minlength="8"><button class="password-toggle" type="button" data-password-toggle="password" aria-pressed="false">Show</button></div>{% include 'register/_errors.html' with items=errors.password %}</div>
+    <div class="field{% if errors.confirm_password %} has-error{% endif %}"><label for="confirm_password">Confirm password</label><div class="password-wrap"><input id="confirm_password" type="password" name="confirm_password" autocomplete="new-password" required><button class="password-toggle" type="button" data-password-toggle="confirm_password" aria-pressed="false">Show</button></div>{% include 'register/_errors.html' with items=errors.confirm_password %}</div>
+  </div>
+  <ul class="password-rules" id="password-rules" aria-live="polite">
+    <li data-rule="length">At least 8 characters</li>
+    <li data-rule="notnumeric">Not only numbers</li>
+    <li data-rule="match">Both passwords match</li>
+  </ul>
+  <button type="submit" class="btn large block">Create account</button>
+</form>
+<p class="auth-footer">Already have an account? <a href="{% url 'login:login' %}">Sign in</a></p>
+{% endblock %}

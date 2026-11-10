@@ -1,0 +1,30 @@
+{% extends 'login/_base.html' %}{% load static ui %}
+{% block title %}Sign in{% endblock %}
+{% block login_assets %}<script src="{% static 'js/login/login.js' %}" defer></script>{% endblock %}
+{% block visual %}<div><h1>Every drop can <span>make a difference.</span></h1><p>BloodSeekr connects people who need blood with volunteer donors, so help reaches the right person faster.</p></div>{% endblock %}
+{% block content %}
+<span class="eyebrow">Welcome back</span>
+<h2>Sign in to BloodSeekr</h2>
+<p class="auth-subtitle">Check your matches, respond to requests and track your donations.</p>
+{% if registration_success %}<div class="alert alert-success" role="status">{% icon 'check-circle' 18 %}<span>Account created. You can now sign in.</span></div>{% endif %}
+{% if password_changed %}<div class="alert alert-success" role="status">{% icon 'check-circle' 18 %}<span>Password updated. Sign in with your new password.</span></div>{% endif %}
+{% if error_message %}<div class="alert alert-error" role="alert">{% icon 'alert' 18 %}<span>{{ error_message }}</span></div>{% endif %}
+<form method="post" class="auth-card" novalidate>
+  {% csrf_token %}<input type="hidden" name="next" value="{{ next_url }}">
+  <div class="field">
+    <label for="username">Username</label>
+    <input id="username" type="text" name="username" value="{{ username }}" placeholder="Your username" autocomplete="username" autocapitalize="none" spellcheck="false" required {% if not error_message %}autofocus{% endif %}>
+  </div>
+  <div class="field">
+    <label for="password">Password</label>
+    <div class="password-wrap">
+      <input id="password" type="password" name="password" placeholder="Your password" autocomplete="current-password" required {% if error_message %}autofocus{% endif %}>
+      <button class="password-toggle" type="button" data-password-toggle="password" aria-pressed="false">Show</button>
+    </div>
+    <small id="caps-warning" class="caps-warning" hidden>Caps Lock is on.</small>
+    <a class="forgot-link" href="{% url 'login:password_reset' %}">Forgot your password?</a>
+  </div>
+  <button type="submit" class="btn large block">Sign in</button>
+</form>
+<p class="auth-footer">New to BloodSeekr? <a href="{% url 'register:register' %}">Create an account</a></p>
+{% endblock %}
