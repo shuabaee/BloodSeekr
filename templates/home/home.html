@@ -1,0 +1,66 @@
+{% extends 'shared/base.html' %}{% load static locations ui %}
+{% block title %}Dashboard{% endblock %}
+{% block assets %}<link rel="stylesheet" href="{% static 'css/home/home.css' %}"><script src="{% static 'js/home/home.js' %}" defer></script>{% endblock %}
+{% block content %}
+<header class="page-heading">
+  <div><span class="eyebrow">Dashboard</span><h1>{{ greeting }}, {{ display_name }}</h1><p>Here is what is happening with your requests and donor matches today.</p></div>
+  <div class="actions"><a class="btn" href="{% url 'blood_requests:create' %}">{% icon 'plus' 16 %} Request blood</a><a class="btn secondary" href="{% url 'blood_requests:list' %}?view=matching">{% icon 'droplet' 16 %} Find matches</a></div>
+</header>
+
+<section class="card attention" aria-labelledby="attention-title">
+  <div class="card-head"><h2 id="attention-title">{% icon 'target' 18 %} Needs your attention</h2></div>
+  {% if attention %}<ul class="attention-list">{% for a in attention %}
+    <li class="attention-item {{ a.tone }}"><span class="attention-icon">{% icon a.icon 20 %}</span><div><strong>{{ a.title }}</strong><p>{{ a.text }}</p></div><a class="btn small {% if a.tone == 'emergency' or a.tone == 'urgent' %}{% else %}secondary{% endif %}" href="{{ a.url }}">{{ a.label }}</a></li>{% endfor %}</ul>
+  {% else %}<div class="all-clear">{% icon 'check-circle' 22 %}<div><strong>You are all caught up.</strong><p class="muted">No offers to review and no new matches. Thank you for being part of BloodSeekr.</p></div></div>{% endif %}
+</section>
+
+<section class="stats" aria-label="Overview">
+  <a class="stat" href="{% url 'blood_requests:list' %}?view=community"><span class="stat-icon">{% icon 'activity' 20 %}</span><div><strong>{{ active_count }}</strong><small>Active requests</small></div></a>
+  <a class="stat" href="{% url 'blood_requests:list' %}?view=matching"><span class="stat-icon">{% icon 'droplet' 20 %}</span><div><strong>{{ matching_count }}</strong><small>Match you</small></div></a>
+  <a class="stat" href="{% url 'blood_requests:list' %}?view=mine"><span class="stat-icon">{% icon 'file' 20 %}</span><div><strong>{{ my_open_count }}</strong><small>My open requests</small></div></a>
+  <a class="stat" href="{% url 'donations:list' %}"><span class="stat-icon">{% icon 'heart' 20 %}</span><div><strong>{{ donation.completed }}</strong><small>Donations made</small></div></a>
+</section>
+
+<div class="home-grid">
+  <div class="home-main">
+    <section class="card">
+      <div class="section-title-row"><h2>{% icon 'droplet' 18 %} Requests that match you</h2><a href="{% url 'blood_requests:list' %}?view=matching">View all</a></div>
+      {% for item in matching_requests %}{% include 'home/_request_row.html' %}{% empty %}
+        {% if not profile.blood_type_id or not profile.available_to_donate %}
+        <div class="empty compact">{% icon 'user' 20 %}<p>Set your blood type, location and availability to see requests you can help with.</p><a class="btn small" href="{% url 'profile:profile' %}">Set up donor profile</a></div>
+        {% else %}<div class="empty compact"><p>No requests match you right now. We will notify you when one does.</p></div>{% endif %}
+      {% endfor %}
+    </section>
+    <section class="card">
+      <div class="section-title-row"><h2>{% icon 'file' 18 %} My requests</h2><a href="{% url 'blood_requests:list' %}?view=mine">View all</a></div>
+      {% for item in my_requests %}{% include 'home/_request_row.html' %}
+        {% if item.units_done %}<div class="req-progress"><div class="progress gold"><span style="width:{{ item.progress_pct }}%"></span></div><small>{{ item.units_done|floatformat:"-2" }} of {{ item.units_needed }} units</small></div>{% endif %}
+      {% empty %}<div class="empty compact"><p>You have not requested blood yet.</p><a class="btn small" href="{% url 'blood_requests:create' %}">Create a request</a></div>{% endfor %}
+    </section>
+  </div>
+
+  <div class="home-side">
+    <section class="card donor-card">
+      <div class="section-title-row"><h2>Donor status</h2><a href="{% url 'profile:profile' %}">Edit</a></div>
+      <div class="donor-top"><span class="type-chip">{{ profile.blood_type|default:'?' }}</span><div><span class="badge dot {% if profile.available_to_donate %}available{% endif %}">{% if profile.available_to_donate %}Available to donate{% else %}Not available{% endif %}</span><small class="block">{% if donation.can_donate_now %}Ready to donate{% else %}Next window {{ donation.next_eligible|date:'M j' }}{% endif %}</small></div></div>
+      <p class="muted loc">{% icon 'pin' 14 %} {{ profile.location|location_label|default:'No location pinned yet' }}</p>
+      <div class="progress-label"><span>Profile strength</span><span>{{ strength.percent }}%</span></div>
+      <div class="progress"><span style="width:{{ strength.percent }}%"></span></div>
+    </section>
+
+    <section class="card">
+      <div class="section-title-row"><h2>{% icon 'bell' 18 %} Recent activity</h2><a href="{% url 'notifications:list' %}">All</a></div>
+      {% for notice in recent_notifications %}<div class="activity {% if not notice.is_read %}is-unread{% endif %}"><strong>{{ notice.title }}</strong><p>{{ notice.message }}</p><small>{{ notice.created_at|timesince }} ago</small></div>{% empty %}<p class="muted">Nothing yet. Updates about requests and offers will appear here.</p>{% endfor %}
+    </section>
+
+    <section class="card">
+      <div class="section-title-row"><h2>{% icon 'heart' 18 %} My donations</h2><a href="{% url 'donations:list' %}">All</a></div>
+      {% for record in donations %}<div class="activity"><strong>{{ record.donation_date|date:'M j, Y' }} · {{ record.units_donated|floatformat:"-2" }} unit{{ record.units_donated|pluralize }}</strong><p>{{ record.facility }} · <span class="badge {{ record.donation_status }}">{{ record.donation_status|label }}</span></p></div>{% empty %}<p class="muted">Your donations will be tracked here.</p>{% endfor %}
+    </section>
+
+    {% if not profile.available_to_donate %}
+    <section class="card promo" style="--promo: url('{% static 'images/home/blood-donation.png' %}')"><div><h2>Become a donor</h2><p>One donation can help up to three people. Turn on availability and we will notify you of requests near you.</p><a class="btn small" href="{% url 'profile:profile' %}">Get started</a></div></section>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

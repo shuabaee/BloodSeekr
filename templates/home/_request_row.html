@@ -1,0 +1,5 @@
+{% load locations ui %}<a class="req-row {{ item.urgency }}" href="{% url 'blood_requests:detail' item.pk %}">
+  <span class="type-chip">{{ item.required_blood_type }}</span>
+  <span class="req-main"><strong>{{ item.patient_name }}</strong><small>{% icon 'pin' 12 %} {{ item.location|location_label }}</small></span>
+  <span class="req-side"><span class="badge {{ item.urgency }}">{{ item.urgency|label }}</span><small class="due {{ item.needed_date|due_class }}">{{ item.needed_date|days_until }}</small></span>
+</a>
