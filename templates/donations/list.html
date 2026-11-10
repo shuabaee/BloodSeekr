@@ -1,0 +1,43 @@
+{% extends 'shared/base.html' %}{% load static ui %}
+{% block assets %}<link rel="stylesheet" href="{% static 'css/donations/donations.css' %}">{% endblock %}
+{% block title %}Donations{% endblock %}
+{% block content %}
+<header class="page-heading">
+  <div><span class="eyebrow">Your impact</span><h1>Donations</h1><p>Donations you have made and donations coordinated for your requests.</p></div>
+  {% if page_obj.paginator.count %}<a class="btn secondary" href="{% url 'donations:export' %}?role={{ role }}">{% icon 'download' 16 %} Export CSV</a>{% endif %}
+</header>
+
+<section class="stats">
+  <div class="stat"><span class="stat-icon">{% icon 'heart' 20 %}</span><div><strong>{{ summary.completed }}</strong><small>Completed donations</small></div></div>
+  <div class="stat"><span class="stat-icon">{% icon 'droplet' 20 %}</span><div><strong>{{ summary.units|floatformat:"-2" }}</strong><small>Units donated</small></div></div>
+  <div class="stat"><span class="stat-icon">{% icon 'users' 20 %}</span><div><strong>{% if summary.lives %}Up to {{ summary.lives }}{% else %}0{% endif %}</strong><small>People helped (estimate)</small></div></div>
+  <div class="stat"><span class="stat-icon">{% icon 'calendar' 20 %}</span><div><strong>{% if summary.can_donate_now %}Now{% else %}{{ summary.next_eligible|date:'M j' }}{% endif %}</strong><small>Next donation window</small></div></div>
+</section>
+{% if not summary.can_donate_now %}<div class="page-note">{% icon 'clock' 18 %}<span>Donors usually wait about 8 weeks between whole-blood donations. You may be able to donate again in <strong>{{ summary.days_left }} day{{ summary.days_left|pluralize }}</strong>. The facility makes the final call.</span></div>{% endif %}
+
+<nav class="tabs" aria-label="Donation records">{% for key, name in roles.items %}<a href="?role={{ key }}" class="{% if role == key %}active{% endif %}">{{ name }}</a>{% endfor %}</nav>
+
+{% if page_obj %}
+<section class="card table-wrap donation-table">
+  <table>
+    <thead><tr><th>Date</th><th>Request</th><th>Donor</th><th>Facility</th><th>Units</th><th>Screening</th><th>Status</th><th><span class="sr-only">Actions</span></th></tr></thead>
+    <tbody>{% for record in page_obj %}
+      <tr>
+        <td data-label="Date">{{ record.donation_date|date:'M j, Y' }}</td>
+        <td data-label="Request"><a href="{% url 'blood_requests:detail' record.donor_response.blood_request_id %}">#{{ record.donor_response.blood_request_id }}</a></td>
+        <td data-label="Donor">{{ record.donor_response.donor_user.get_full_name|default:record.donor_response.donor_user.username }}</td>
+        <td data-label="Facility">{{ record.facility }}</td>
+        <td data-label="Units">{{ record.units_donated|floatformat:2 }}</td>
+        <td data-label="Screening"><span class="badge {{ record.screening_status }}">{{ record.screening_status|label }}</span></td>
+        <td data-label="Status"><span class="badge dot {{ record.donation_status }}">{{ record.donation_status|label }}</span></td>
+        <td class="row-actions">{% if record.donation_status != 'completed' and request.user.pk == record.donor_response.blood_request.requester_id %}<a class="btn secondary small" href="{% url 'donations:record' record.donor_response_id %}">Update</a>{% endif %}</td>
+      </tr>{% endfor %}
+    </tbody>
+  </table>
+</section>
+{% include 'shared/pagination.html' %}
+{% else %}
+{% url 'blood_requests:list' as requests_url %}
+{% include 'shared/empty_state.html' with icon='heart' title='No donation records yet' text='When a requester accepts your offer and records the donation, it will show up here. You can also record donations for offers you accept on your own requests.' action_url=requests_url action_label='Find requests to help with' %}
+{% endif %}
+{% endblock %}

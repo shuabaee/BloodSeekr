@@ -1,0 +1,14 @@
+/* Donations feature. */
+.person-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: var(--space-4); }
+.person-row strong { display: block; }
+.donation-table td.row-actions { text-align: right; }
+@media (max-width: 760px) {
+  .donation-table table, .donation-table tbody, .donation-table tr, .donation-table td { display: block; width: 100%; }
+  .donation-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .donation-table tr { padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--line); }
+  .donation-table tbody tr:last-child { border-bottom: 0; }
+  .donation-table td { display: flex; justify-content: space-between; gap: 1rem; border: 0; padding: 0.3125rem 0; text-align: right; }
+  .donation-table td::before { content: attr(data-label); font-weight: 700; color: var(--ink-500); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: .05em; text-align: left; }
+  .donation-table td.row-actions { justify-content: flex-end; }
+  .donation-table td.row-actions::before { content: none; }
+}

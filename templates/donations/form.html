@@ -1,0 +1,26 @@
+{% extends 'shared/base.html' %}{% load static locations ui %}
+{% block assets %}<link rel="stylesheet" href="{% static 'css/donations/donations.css' %}">{% endblock %}
+{% block title %}Record donation{% endblock %}
+{% block content %}
+<header class="page-heading">
+  <div><a class="breadcrumb" href="{% url 'blood_requests:detail' response.blood_request_id %}">{% icon 'arrow-left' 14 %} Request #{{ response.blood_request_id }}</a><span class="eyebrow">Donation record</span><h1>Record donation</h1><p>Enter the results the facility confirmed for this donor.</p></div>
+</header>
+<div class="detail-grid">
+  <form method="post" novalidate>{% csrf_token %}
+    <section class="card">
+      <div class="form-section-label"><span class="step-number">{% icon 'heart' 16 %}</span><h2>Donation details</h2></div>
+      {% include 'shared/fields.html' %}
+      <p class="help-note" style="margin-top:16px">A donation can only be marked <strong>Completed</strong> when screening has <strong>Passed</strong>, units are above zero, and the date is today or earlier. Completed records can no longer be edited.</p>
+    </section>
+    <div class="form-actions"><button class="btn">Save donation</button><a class="btn secondary" href="{% url 'blood_requests:detail' response.blood_request_id %}">Cancel</a></div>
+  </form>
+  <aside class="stack">
+    <section class="card tinted">
+      <h2>Who is donating</h2>
+      <div class="person-row"><span class="avatar">{{ response.donor_user|initial }}</span><div><strong>{{ response.donor_user.get_full_name|default:response.donor_user.username }}</strong><small>Responded {{ response.responded_at|date:'M j, Y' }}</small></div></div>
+      <dl class="details single"><div><dt>Patient</dt><dd>{{ response.blood_request.patient_name }}</dd></div><div><dt>Blood type needed</dt><dd>{{ response.blood_request.required_blood_type }}</dd></div><div><dt>Units needed</dt><dd>{{ response.blood_request.units_needed }}</dd></div></dl>
+    </section>
+    {% if response.blood_request.facility %}<section class="card"><div class="section-title-row"><h2>Requested facility</h2><a href="{% url 'facilities:detail' response.blood_request.facility_id %}">Details</a></div><strong>{{ response.blood_request.facility.name }}</strong><p class="muted">{{ response.blood_request.facility.address|location_label }}</p><small>The form starts with this facility. Pick the one where the donation actually took place.</small></section>{% endif %}
+  </aside>
+</div>
+{% endblock %}
